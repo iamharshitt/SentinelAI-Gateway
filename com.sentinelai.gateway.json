@@ -1,0 +1,9 @@
+{
+  "name": "com.sentinelai.gateway",
+  "description": "SentinelAI Gateway Agent",
+  "path": "D:\\SentinelAI-Gateway\\agent\\sentinelai.exe",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://iceenonoogfbpljkjfcpoplcmegphfch/"
+  ]
+}

@@ -1,12 +1,6 @@
-\- name: Build SentinelAI Agent
+# SentinelAI Gateway
 
-&nbsp; working-directory: agent
-
-&nbsp; run: |
-
-&nbsp;   go mod tidy
-
-&nbsp;   go build ./...
-
+- name: Build SentinelAI Agent
+- 
 
 

@@ -25,7 +25,9 @@ func onReady() {
 			fmt.Println("Failed to start agent:", err)
 			return
 		}
-		cmd.Wait()
+		if err := cmd.Wait(); err != nil {
+			fmt.Println("Agent process exited with error:", err)
+		}
 	}()
 
 	// Keep tray alive

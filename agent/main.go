@@ -30,19 +30,24 @@ func main() {
 		policyPath = "D:/SentinelAI-Gateway/sentinel_policies.json"
 	}
 
+	// Serve on the process stdio
+	Serve(os.Stdin, os.Stdout, policyPath)
+}
+
+// Serve runs the native messaging loop reading length-prefixed JSON
+// messages from reader and writing length-prefixed JSON responses to writer.
+func Serve(reader io.Reader, writer io.Writer, policyPath string) {
 	// 1. Load the security policies
 	p, err := policy.LoadPolicy(policyPath)
 	if err != nil {
 		log.Fatalf("failed to load policy from %s: %v", policyPath, err)
 	}
 
-	// 2. Initialize the reader for Stdin
-	reader := bufio.NewReader(os.Stdin)
+	bufReader := bufio.NewReader(reader)
 
 	for {
-		// 3. Read the 4-byte message length (Native Messaging Protocol)
 		lengthBytes := make([]byte, 4)
-		if _, err := io.ReadFull(reader, lengthBytes); err != nil {
+		if _, err := io.ReadFull(bufReader, lengthBytes); err != nil {
 			if err == io.EOF {
 				return // graceful exit
 			}
@@ -52,14 +57,13 @@ func main() {
 
 		length := binary.LittleEndian.Uint32(lengthBytes)
 
-		// 4. Read the actual JSON message
 		if length == 0 {
 			log.Printf("received zero-length message, skipping")
 			continue
 		}
 
 		message := make([]byte, length)
-		if _, err := io.ReadFull(reader, message); err != nil {
+		if _, err := io.ReadFull(bufReader, message); err != nil {
 			log.Printf("error reading message body: %v", err)
 			return
 		}
@@ -67,9 +71,11 @@ func main() {
 		var req Request
 		if err := json.Unmarshal(message, &req); err != nil {
 			log.Printf("invalid json message: %v", err)
-			// respond with an error result
 			respObj := map[string]interface{}{"allowed": false, "action": "error", "reason": "invalid json"}
-			sendResponse(respObj)
+			if err := sendResponseTo(writer, respObj); err != nil {
+				log.Printf("failed to send response: %v", err)
+				return
+			}
 			continue
 		}
 
@@ -77,21 +83,21 @@ func main() {
 		result := analyzer.Analyze(req.Prompt, p)
 
 		// 6. Send the response back (Length prefix + JSON)
-		if err := sendResponse(result); err != nil {
+		if err := sendResponseTo(writer, result); err != nil {
 			log.Printf("failed to send response: %v", err)
 			return
 		}
 	}
 }
 
-func sendResponse(resp interface{}) error {
+func sendResponseTo(writer io.Writer, resp interface{}) error {
 	data, err := json.Marshal(resp)
 	if err != nil {
 		return err
 	}
-	if err := binary.Write(os.Stdout, binary.LittleEndian, uint32(len(data))); err != nil {
+	if err := binary.Write(writer, binary.LittleEndian, uint32(len(data))); err != nil {
 		return err
 	}
-	_, err = os.Stdout.Write(data)
+	_, err = writer.Write(data)
 	return err
 }

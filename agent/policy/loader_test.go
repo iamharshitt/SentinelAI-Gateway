@@ -90,5 +90,19 @@ func TestLoadPolicy_MissingFields(t *testing.T) {
 	}
 }
 
-// Note: tests that assert analyzer behavior for invalid regex belong in the
-// analyzer package tests to avoid import cycles.
+func TestLoadPolicy_InvalidRegexFile(t *testing.T) {
+	content := `{
+	"version": "1",
+	"default_action": "allow",
+	"rules": [
+		{"id":"r1","description":"bad regex","match":{"type":"regex","patterns":["(unclosed"] ,"action":"warn","severity":"low"}
+	]
+}`
+	path := writeTempFile(t, content)
+	defer os.Remove(path)
+
+	_, err := LoadPolicy(path)
+	if err == nil {
+		t.Fatalf("expected error for invalid regex, got nil")
+	}
+}

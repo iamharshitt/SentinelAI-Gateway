@@ -1,0 +1,56 @@
+project_name: sentinelai
+
+builds:
+  - id: sentinelai-agent
+    dir: agent
+    main: ./
+    binary: sentinelai
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    env:
+      - CGO_ENABLED=0
+
+archives:
+  - id: default
+    format_overrides:
+      - goos: windows
+        format: zip
+    format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  use: git
+
+release:
+  github:
+    owner: $GITHUB_REPOSITORY_OWNER
+    name: $GITHUB_REPOSITORY
+
+signs:
+  - artifacts: all
+    args:
+      - --batch
+      - --yes
+      - --pinentry-mode
+      - loopback
+
+snapshot:
+  name_template: "snapshot-{{ .ShortCommit }}"
+
+archives:
+  - format: tar.gz
+    files:
+      - README.md
+  - format_overrides:
+      - goos: windows
+        format: zip

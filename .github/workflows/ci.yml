@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ${{ env.GOMODCACHE }}
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Show Go version
+        run: go version && go env
+
+      - name: Build agent
+        run: |
+          cd agent
+          go build ./...
+
+      - name: Run unit tests (agent)
+        run: |
+          cd agent
+          go test ./... -v
+
+      - name: Run go vet
+        run: |
+          cd agent
+          go vet ./...
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
+
+      - name: Run golangci-lint
+        run: |
+          cd agent
+          $(go env GOPATH)/bin/golangci-lint run ./...
+
+      - name: Install gosec
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+
+      - name: Run gosec security scan
+        run: |
+          cd agent
+          $(go env GOPATH)/bin/gosec ./...
+
+  # Optional: add release or packaging jobs later

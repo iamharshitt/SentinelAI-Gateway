@@ -47,14 +47,17 @@ jobs:
           cd agent
           go vet ./...
 
+      - name: Add Go bin to PATH
+        run: echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
       - name: Install golangci-lint
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.0
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.59.0
 
       - name: Run golangci-lint
         run: |
           cd agent
-          $(go env GOPATH)/bin/golangci-lint run ./...
+          golangci-lint run ./...
 
       - name: Install gosec
         run: |
@@ -63,6 +66,6 @@ jobs:
       - name: Run gosec security scan
         run: |
           cd agent
-          $(go env GOPATH)/bin/gosec ./...
+          gosec ./...
 
   # Optional: add release or packaging jobs later

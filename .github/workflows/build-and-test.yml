@@ -1,4 +1,4 @@
-name: build-and-test
+name: Build and Test SentinelAI Agent
 
 on:
   push:
@@ -7,23 +7,30 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version: "1.21"
 
-      - name: Install dependencies
+      - name: Cache Go modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('agent/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Build SentinelAI Agent
+        working-directory: agent
         run: |
-          cd agent
           go mod tidy
+          go build ./...
 
-      - name: Build
-        run: |
-          cd agent
-          go build

@@ -1,4 +1,4 @@
-\# SentinelAI Gateway 🔐
+\# SentinelAI Gateway 
 
 
 

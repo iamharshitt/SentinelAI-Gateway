@@ -1,57 +1,27 @@
 {
-  "version": "1.0",
+  "version": "1",
   "default_action": "allow",
   "rules": [
     {
-      "id": "rule_api_key",
-      "description": "Block prompts containing API keys",
+      "id": "rule-01",
+      "description": "Sensitive Data Block",
       "match": {
         "type": "regex",
-        "patterns": ["[A-Za-z0-9]{32,}"]
+        "patterns": ["(?i)password", "(?i)secret_key"]
       },
       "action": "block",
       "severity": "high"
     },
     {
-      "id": "rule_email",
-      "description": "Warn if prompt contains email addresses",
+      "id": "rule-02",
+      "description": "Email Redaction",
       "match": {
         "type": "regex",
-        "patterns": ["[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"]
-      },
-      "action": "warn",
-      "severity": "medium"
-    },
-    {
-      "id": "rule_url",
-      "description": "Redact URLs in prompt",
-      "match": {
-        "type": "regex",
-        "patterns": ["https?://[^\\s]+"]
+        "patterns": ["[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"]
       },
       "action": "redact",
-      "severity": "medium",
-      "redaction_token": "[REDACTED_URL]"
-    },
-    {
-      "id": "rule_code_block",
-      "description": "Warn if code block detected",
-      "match": {
-        "type": "regex",
-        "patterns": ["```[\\s\\S]*?```"]
-      },
-      "action": "warn",
+      "redaction_token": "[EMAIL_REDACTED]",
       "severity": "medium"
-    },
-    {
-      "id": "rule_secret_words",
-      "description": "Block prompts containing sensitive words",
-      "match": {
-        "type": "regex",
-        "patterns": ["password", "secret", "token", "credential"]
-      },
-      "action": "block",
-      "severity": "high"
     }
   ]
 }

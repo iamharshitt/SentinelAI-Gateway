@@ -23,17 +23,21 @@ func LoadPolicy(path string) (Policy, error) {
 		return p, err
 	}
 
-	// Validate regex patterns to avoid runtime panics in analyzer
-	for _, r := range p.Rules {
+	// Validate and precompile regex patterns to avoid runtime cost
+	for i := range p.Rules {
+		r := &p.Rules[i]
 		if r.Match.Type == "regex" {
+			r.CompiledPatterns = make([]*regexp.Regexp, 0, len(r.Match.Patterns))
 			for _, pattern := range r.Match.Patterns {
-				if _, err := regexp.Compile(pattern); err != nil {
+				re, err := regexp.Compile(pattern)
+				if err != nil {
 					id := r.ID
 					if id == "" {
 						id = "<unknown>"
 					}
 					return p, fmt.Errorf("invalid regex in rule %s: %w", id, err)
 				}
+				r.CompiledPatterns = append(r.CompiledPatterns, re)
 			}
 		}
 	}

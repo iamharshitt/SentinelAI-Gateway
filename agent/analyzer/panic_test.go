@@ -3,7 +3,7 @@ package analyzer
 import (
 	"testing"
 
-	"sentinelai/policy"
+	"github.com/iamharshitt/SentinelAI-Gateway/policy"
 )
 
 func TestAnalyze_PanicOnInvalidRegex(t *testing.T) {

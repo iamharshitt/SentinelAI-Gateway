@@ -1,7 +1,7 @@
 //go:build ignore
 // +build ignore
 
-package main
+package client
 
 import (
 	"bytes"

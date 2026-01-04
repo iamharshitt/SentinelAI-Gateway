@@ -1,26 +1,17 @@
-\# SentinelAI Gateway 🔐
+<<<<<<< HEAD
+# SentinelAI Gateway
+
+- name: Build SentinelAI Agent
+- 
+
+
+=======
+See [README_FULL.md](README_FULL.md) for build, install, and packaging instructions.
+
+
+&nbsp; working-directory: agent
 
 
 
-Policy-driven AI prompt security gateway written in Go.
-
-
-
-\## Features
-
-\- Detects secrets, emails, URLs
-
-\- Blocks, warns, or redacts sensitive prompts
-
-\- JSON-based policy engine
-
-\- Designed for AI gateway integration
-
-
-
-\## Tech Stack
-
-Go · Regex · JSON · Secure AI Systems
-
-
-
+&nbsp; run: |
+>>>>>>> 97d5129 (Stabilize agent, fix CI, update policies and analyzer)

@@ -1,0 +1,29 @@
+name: build-and-test
+
+on:
+  push:
+    branches: [ main, ci/* ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: true
+          cache-dependency-path: agent/go.sum
+
+      - name: Build
+        working-directory: agent
+        run: go build ./...
+
+      - name: Test
+        working-directory: agent
+        run: go test ./...
